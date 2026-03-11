@@ -10,6 +10,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { useInternetIdentity } from "@/hooks/useInternetIdentity";
 import {
+  Anchor,
   ChevronDown,
   Globe2,
   Loader2,
@@ -20,6 +21,8 @@ import {
 } from "lucide-react";
 import { motion } from "motion/react";
 import { useState } from "react";
+
+const AFFILIATE_URL = "https://www.expedia.com/?marker=708777";
 
 const LEXICON = [
   {
@@ -299,9 +302,36 @@ export default function App() {
           <div className="flex items-center gap-2">
             <Globe2 className="w-5 h-5 text-gold" />
             <span className="font-display text-xl font-bold tracking-[0.12em] text-midnight uppercase">
-              Travel Pack
+              The Travel Vault
             </span>
           </div>
+
+          <nav className="hidden md:flex items-center gap-6 text-sm font-medium text-midnight/60">
+            <a
+              href="#flights"
+              data-ocid="nav.flights_link"
+              className="hover:text-midnight transition-colors"
+            >
+              Flights
+            </a>
+            <a
+              href="#hotels"
+              data-ocid="nav.hotels_link"
+              className="hover:text-midnight transition-colors"
+            >
+              Hotels
+            </a>
+            <a
+              href={AFFILIATE_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              data-ocid="nav.cruises_link"
+              className="flex items-center gap-1.5 hover:text-midnight transition-colors"
+            >
+              <Anchor className="w-3.5 h-3.5" />
+              Cruises
+            </a>
+          </nav>
 
           <div className="flex items-center gap-4">
             {isLoggedIn ? (
@@ -335,6 +365,7 @@ export default function App() {
 
       {/* Hero */}
       <section
+        id="flights"
         className="relative min-h-screen flex flex-col items-center justify-center pt-16"
         style={{
           backgroundImage:
@@ -391,8 +422,55 @@ export default function App() {
         </motion.div>
       </section>
 
+      {/* Cruises Section */}
+      <section
+        id="cruises"
+        className="relative min-h-[60vh] flex flex-col items-center justify-center overflow-hidden"
+        style={{
+          backgroundImage:
+            "url('/assets/generated/cruise-hero.dim_1920x1080.jpg')",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+        }}
+      >
+        <div className="absolute inset-0 bg-gradient-to-r from-midnight/80 via-midnight/50 to-midnight/30" />
+        <div className="relative z-10 max-w-2xl px-8 py-16 text-left">
+          <motion.div
+            initial={{ opacity: 0, x: -32 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.7, ease: "easeOut" }}
+          >
+            <p className="text-gold text-xs font-semibold uppercase tracking-[0.35em] mb-4">
+              Ocean Voyages
+            </p>
+            <h2 className="font-display text-4xl md:text-5xl font-bold text-white leading-tight mb-4">
+              Sail the World
+              <br />
+              <em style={{ fontStyle: "italic" }} className="font-light">
+                in Grand Style
+              </em>
+            </h2>
+            <p className="text-white/75 text-lg font-light mb-8 max-w-md">
+              From Mediterranean rivieras to Arctic fjords - discover handpicked
+              luxury cruise voyages aboard the world's finest ocean liners.
+            </p>
+            <a
+              href={AFFILIATE_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              data-ocid="cruises.book_button"
+              className="btn-gold inline-flex items-center gap-2 px-8 py-4 rounded-xl text-base font-bold tracking-wide"
+            >
+              <Anchor className="w-5 h-5" />
+              Explore Cruises
+            </a>
+          </motion.div>
+        </div>
+      </section>
+
       {/* Features */}
-      <section className="bg-white py-24 px-4">
+      <section id="hotels" className="bg-white py-24 px-4">
         <div className="max-w-5xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 24 }}
@@ -402,7 +480,7 @@ export default function App() {
             className="text-center mb-16"
           >
             <p className="text-gold text-xs font-semibold uppercase tracking-[0.3em] mb-3">
-              Why TRAVEL PACK
+              Why THE TRAVEL VAULT
             </p>
             <h2 className="font-display text-3xl md:text-4xl font-bold text-midnight">
               The Art of Effortless Travel
@@ -428,6 +506,15 @@ export default function App() {
                 <p className="text-midnight/60 text-sm leading-relaxed">
                   {f.desc}
                 </p>
+                <a
+                  href={AFFILIATE_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  data-ocid={`features.book_button.${i + 1}`}
+                  className="mt-4 text-xs font-semibold text-gold hover:underline"
+                >
+                  Check Prices &rarr;
+                </a>
               </motion.div>
             ))}
           </div>
@@ -475,7 +562,7 @@ export default function App() {
           <Separator className="mb-8" />
 
           <div className="text-center text-sm text-midnight/40 space-y-1">
-            <p>© {currentYear} TRAVEL PACK. All rights reserved.</p>
+            <p>© {currentYear} THE TRAVEL VAULT. All rights reserved.</p>
             <p>
               Built with ♥ using{" "}
               <a

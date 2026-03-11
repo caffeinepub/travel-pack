@@ -1,12 +1,14 @@
 import type { Airport } from "@/data/airports";
 import { cn } from "@/lib/utils";
-import { Hotel, Plane, Search } from "lucide-react";
+import { Anchor, Hotel, Plane, Search } from "lucide-react";
 import { useState } from "react";
 import { AirportSelector } from "./AirportSelector";
 import { DateRangePicker } from "./DateRangePicker";
 import { PassengerSelector, type Passengers } from "./PassengerSelector";
 
-type Tab = "flights" | "hotels";
+const AFFILIATE_URL = "https://www.expedia.com/?marker=708777";
+
+type Tab = "flights" | "hotels" | "cruises";
 
 export function SearchCard() {
   const [tab, setTab] = useState<Tab>("flights");
@@ -21,13 +23,15 @@ export function SearchCard() {
   });
 
   function handleSearch() {
-    const msg =
-      `Searching ${tab === "flights" ? "Flights + Hotels" : "Hotels"}\n` +
-      `From: ${departure?.iata ?? "(not set)"} to ${destination?.iata ?? "(not set)"}\n` +
-      `Dates: ${fromDate?.toLocaleDateString() ?? "(not set)"} - ${toDate?.toLocaleDateString() ?? "(not set)"}\n` +
-      `Travelers: ${passengers.adults} Adult(s), ${passengers.kids} Kid(s), ${passengers.seniors} Senior(s)`;
-    alert(msg);
+    window.open(AFFILIATE_URL, "_blank", "noopener,noreferrer");
   }
+
+  const searchLabel =
+    tab === "flights"
+      ? "Search Flights & Hotels"
+      : tab === "hotels"
+        ? "Search Hotels"
+        : "Search Cruises";
 
   return (
     <div className="w-full max-w-3xl mx-auto bg-white rounded-3xl shadow-card-lg p-6 md:p-8">
@@ -61,25 +65,53 @@ export function SearchCard() {
           <Hotel className="w-4 h-4" />
           Hotels
         </button>
+        <button
+          type="button"
+          data-ocid="search.cruises_tab"
+          onClick={() => setTab("cruises")}
+          className={cn(
+            "flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-semibold transition-all",
+            tab === "cruises"
+              ? "bg-white text-midnight shadow-xs border-b-2 border-gold"
+              : "text-midnight/50 hover:text-midnight",
+          )}
+        >
+          <Anchor className="w-4 h-4" />
+          Cruises
+        </button>
       </div>
 
       {/* Location */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
-        <AirportSelector
-          label="Departure"
-          value={departure}
-          onChange={setDeparture}
-          placeholder="From where?"
-          data-ocid="search.departure_select"
-        />
-        <AirportSelector
-          label="Destination"
-          value={destination}
-          onChange={setDestination}
-          placeholder="Where to?"
-          data-ocid="search.destination_select"
-        />
-      </div>
+      {tab !== "cruises" && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
+          <AirportSelector
+            label="Departure"
+            value={departure}
+            onChange={setDeparture}
+            placeholder="From where?"
+            data-ocid="search.departure_select"
+          />
+          <AirportSelector
+            label="Destination"
+            value={destination}
+            onChange={setDestination}
+            placeholder="Where to?"
+            data-ocid="search.destination_select"
+          />
+        </div>
+      )}
+
+      {tab === "cruises" && (
+        <div className="mb-4 rounded-xl bg-slate-50 border border-slate-100 p-4 text-sm text-midnight/60">
+          <p className="font-semibold text-midnight mb-1">
+            Discover Luxury Cruises
+          </p>
+          <p>
+            Explore ocean liners, river cruises, and expedition voyages across
+            the world's most beautiful destinations.
+          </p>
+        </div>
+      )}
 
       {/* Dates */}
       <div className="mb-4">
@@ -110,7 +142,7 @@ export function SearchCard() {
         className="w-full btn-gold flex items-center justify-center gap-3 py-4 rounded-xl text-base font-bold tracking-wide"
       >
         <Search className="w-5 h-5" />
-        {tab === "flights" ? "Search Flights & Hotels" : "Search Hotels"}
+        {searchLabel}
       </button>
     </div>
   );
