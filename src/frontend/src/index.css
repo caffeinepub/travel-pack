@@ -1,0 +1,86 @@
+@font-face {
+  font-family: "Playfair Display";
+  src: url("/assets/fonts/PlayfairDisplay-Variable.woff2") format("woff2");
+  font-weight: 100 900;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "General Sans";
+  src: url("/assets/fonts/GeneralSans-Variable.woff2") format("woff2");
+  font-weight: 100 900;
+  font-display: swap;
+}
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 1 0 0;
+    --foreground: 0.26 0.14 265;
+    --card: 1 0 0;
+    --card-foreground: 0.26 0.14 265;
+    --popover: 1 0 0;
+    --popover-foreground: 0.26 0.14 265;
+    --primary: 0.78 0.14 88;
+    --primary-foreground: 1 0 0;
+    --secondary: 0.96 0.01 265;
+    --secondary-foreground: 0.26 0.14 265;
+    --muted: 0.96 0.01 265;
+    --muted-foreground: 0.52 0.06 265;
+    --accent: 0.96 0.03 88;
+    --accent-foreground: 0.26 0.14 265;
+    --destructive: 0.58 0.22 27;
+    --destructive-foreground: 1 0 0;
+    --border: 0.92 0.01 265;
+    --input: 0.92 0.01 265;
+    --ring: 0.78 0.14 88;
+    --radius: 0.5rem;
+    --chart-1: 0.78 0.14 88;
+    --chart-2: 0.26 0.14 265;
+    --chart-3: 0.52 0.06 265;
+    --chart-4: 0.65 0.1 88;
+    --chart-5: 0.85 0.08 88;
+    --sidebar: 0.98 0 0;
+    --sidebar-foreground: 0.26 0.14 265;
+    --sidebar-primary: 0.78 0.14 88;
+    --sidebar-primary-foreground: 1 0 0;
+    --sidebar-accent: 0.96 0.01 265;
+    --sidebar-accent-foreground: 0.26 0.14 265;
+    --sidebar-border: 0.92 0.01 265;
+    --sidebar-ring: 0.78 0.14 88;
+  }
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family: "General Sans", sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+}
+
+.btn-gold {
+  background-color: #d4af37;
+  color: #ffffff;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+.btn-gold:hover {
+  background-color: #b8962e;
+}
+.btn-gold:active {
+  transform: scale(0.99);
+}
+
+.btn-outline-gold {
+  border: 1.5px solid #d4af37;
+  color: #191970;
+  background: transparent;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+.btn-outline-gold:hover {
+  background-color: #d4af37;
+  color: #fff;
+}
