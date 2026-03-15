@@ -1,3 +1,4 @@
+import { SavedTripsPanel } from "@/components/SavedTripsPanel";
 import { SearchCard } from "@/components/SearchCard";
 import { Button } from "@/components/ui/button";
 import {
@@ -8,9 +9,11 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
+import { Toaster } from "@/components/ui/sonner";
 import { useInternetIdentity } from "@/hooks/useInternetIdentity";
 import {
   Anchor,
+  Bookmark,
   ChevronDown,
   Globe2,
   Loader2,
@@ -273,6 +276,7 @@ export default function App() {
   const { login, clear, identity, isLoggingIn, loginStatus } =
     useInternetIdentity();
   const [authOpen, setAuthOpen] = useState(false);
+  const [savedTripsOpen, setSavedTripsOpen] = useState(false);
 
   const isLoggedIn =
     loginStatus !== "initializing" &&
@@ -331,11 +335,30 @@ export default function App() {
               <Anchor className="w-3.5 h-3.5" />
               Cruises
             </a>
+            {isLoggedIn && (
+              <button
+                type="button"
+                data-ocid="nav.saved_trips_button"
+                onClick={() => setSavedTripsOpen(true)}
+                className="flex items-center gap-1.5 hover:text-midnight text-midnight/60 transition-colors font-medium"
+              >
+                <Bookmark className="w-3.5 h-3.5" />
+                Saved Trips
+              </button>
+            )}
           </nav>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
             {isLoggedIn ? (
               <>
+                <button
+                  type="button"
+                  data-ocid="nav.saved_trips_button"
+                  onClick={() => setSavedTripsOpen(true)}
+                  className="md:hidden flex items-center gap-1.5 text-sm font-medium text-midnight/60 hover:text-midnight transition-colors"
+                >
+                  <Bookmark className="w-4 h-4" />
+                </button>
                 <span className="text-xs text-midnight/50 hidden sm:block font-mono">
                   {shortPrincipal}
                 </span>
@@ -619,6 +642,11 @@ export default function App() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Saved Trips Panel */}
+      <SavedTripsPanel open={savedTripsOpen} onOpenChange={setSavedTripsOpen} />
+
+      <Toaster richColors position="bottom-right" />
     </div>
   );
 }

@@ -14,12 +14,27 @@ export const UserRole = IDL.Variant({
   'guest' : IDL.Null,
 });
 export const UserProfile = IDL.Record({ 'name' : IDL.Text });
+export const SavedTrip = IDL.Record({
+  'id' : IDL.Text,
+  'destination' : IDL.Text,
+  'cabinClass' : IDL.Text,
+  'tripType' : IDL.Text,
+  'departureDate' : IDL.Text,
+  'origin' : IDL.Text,
+  'passengers' : IDL.Nat,
+  'savedAt' : IDL.Int,
+  'providerName' : IDL.Text,
+  'price' : IDL.Text,
+  'returnDate' : IDL.Text,
+});
 
 export const idlService = IDL.Service({
   '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
   'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
+  'deleteTrip' : IDL.Func([IDL.Text], [], []),
   'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
   'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
+  'getSavedTrips' : IDL.Func([], [IDL.Vec(SavedTrip)], ['query']),
   'getUserProfile' : IDL.Func(
       [IDL.Principal],
       [IDL.Opt(UserProfile)],
@@ -27,6 +42,7 @@ export const idlService = IDL.Service({
     ),
   'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
   'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
+  'saveTrip' : IDL.Func([SavedTrip], [], []),
 });
 
 export const idlInitArgs = [];
@@ -38,12 +54,27 @@ export const idlFactory = ({ IDL }) => {
     'guest' : IDL.Null,
   });
   const UserProfile = IDL.Record({ 'name' : IDL.Text });
+  const SavedTrip = IDL.Record({
+    'id' : IDL.Text,
+    'destination' : IDL.Text,
+    'cabinClass' : IDL.Text,
+    'tripType' : IDL.Text,
+    'departureDate' : IDL.Text,
+    'origin' : IDL.Text,
+    'passengers' : IDL.Nat,
+    'savedAt' : IDL.Int,
+    'providerName' : IDL.Text,
+    'price' : IDL.Text,
+    'returnDate' : IDL.Text,
+  });
   
   return IDL.Service({
     '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
     'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
+    'deleteTrip' : IDL.Func([IDL.Text], [], []),
     'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
     'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
+    'getSavedTrips' : IDL.Func([], [IDL.Vec(SavedTrip)], ['query']),
     'getUserProfile' : IDL.Func(
         [IDL.Principal],
         [IDL.Opt(UserProfile)],
@@ -51,6 +82,7 @@ export const idlFactory = ({ IDL }) => {
       ),
     'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
     'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
+    'saveTrip' : IDL.Func([SavedTrip], [], []),
   });
 };
 
