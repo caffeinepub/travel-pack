@@ -15,6 +15,7 @@ import {
   Anchor,
   Bookmark,
   ChevronDown,
+  ExternalLink,
   Globe2,
   Loader2,
   LogOut,
@@ -26,6 +27,63 @@ import { motion } from "motion/react";
 import { useState } from "react";
 
 const AFFILIATE_URL = "https://www.expedia.com/?marker=708777";
+
+const TRAVEL_TOOLS = [
+  {
+    name: "The Travel Vault",
+    description:
+      "Your all-in-one luxury travel search engine for flights, hotels, and cruises worldwide.",
+    url: "https://travel-pack-v9b.caffeine.xyz/",
+    categories: ["Flights", "Hotels", "Cruises"],
+    featured: true,
+  },
+  {
+    name: "Expedia",
+    description:
+      "Book flights and hotels with real-time prices across hundreds of airlines and properties.",
+    url: "https://www.expedia.com/?marker=708777",
+    categories: ["Flights", "Hotels"],
+    featured: false,
+  },
+  {
+    name: "Kayak",
+    description:
+      "Compare hundreds of travel sites to find the best deals on flights and accommodations.",
+    url: "https://www.kayak.com",
+    categories: ["Flights", "Hotels"],
+    featured: false,
+  },
+  {
+    name: "Booking.com",
+    description:
+      "Discover and book hotels, apartments, and unique stays around the globe.",
+    url: "https://www.booking.com",
+    categories: ["Hotels"],
+    featured: false,
+  },
+  {
+    name: "Cruise Critic",
+    description:
+      "Expert cruise reviews, tips, and booking tools for ocean and river voyages.",
+    url: "https://www.cruisecritic.com",
+    categories: ["Cruises"],
+    featured: false,
+  },
+  {
+    name: "Google Flights",
+    description:
+      "Track prices, explore destinations, and find the cheapest dates to fly.",
+    url: "https://www.google.com/travel/flights",
+    categories: ["Flights"],
+    featured: false,
+  },
+];
+
+const CATEGORY_ANCHORS: Record<string, string> = {
+  Flights: "#flights",
+  Hotels: "#hotels",
+  Cruises: "#cruises",
+};
 
 const LEXICON = [
   {
@@ -537,6 +595,90 @@ export default function App() {
                   className="mt-4 text-xs font-semibold text-gold hover:underline"
                 >
                   Check Prices &rarr;
+                </a>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Essential Travel Tools */}
+      <section
+        className="bg-slate-50 py-24 px-4"
+        data-ocid="travel-tools.section"
+      >
+        <div className="max-w-6xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="text-center mb-16"
+          >
+            <p className="text-gold text-xs font-semibold uppercase tracking-[0.3em] mb-3">
+              Curated Resources
+            </p>
+            <h2 className="font-display text-3xl md:text-4xl font-bold text-midnight mb-3">
+              Essential Travel Tools
+            </h2>
+            <p className="text-midnight/50 text-base max-w-lg mx-auto">
+              Curated resources for the modern luxury traveler
+            </p>
+          </motion.div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {TRAVEL_TOOLS.map((tool, i) => (
+              <motion.div
+                key={tool.name}
+                initial={{ opacity: 0, y: 24 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: i * 0.1 }}
+                data-ocid={`travel-tools.item.${i + 1}`}
+                className={`flex flex-col bg-white rounded-2xl border ${
+                  tool.featured
+                    ? "border-gold/40 shadow-lg"
+                    : "border-slate-100 hover:border-gold/20"
+                } hover:shadow-md transition-all p-6 group`}
+              >
+                {tool.featured && (
+                  <div className="mb-3">
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-gold bg-gold/10 px-2.5 py-1 rounded-full">
+                      Featured
+                    </span>
+                  </div>
+                )}
+
+                <h3 className="font-display text-lg font-bold text-midnight mb-2">
+                  {tool.name}
+                </h3>
+
+                <p className="text-midnight/60 text-sm leading-relaxed mb-4 flex-1">
+                  {tool.description}
+                </p>
+
+                <div className="flex flex-wrap gap-1.5 mb-5">
+                  {tool.categories.map((cat) => (
+                    <a
+                      key={cat}
+                      href={CATEGORY_ANCHORS[cat]}
+                      data-ocid="travel-tools.tab"
+                      className="text-xs font-semibold text-gold bg-gold/10 hover:bg-gold/20 px-2.5 py-1 rounded-full transition-colors"
+                    >
+                      {cat}
+                    </a>
+                  ))}
+                </div>
+
+                <a
+                  href={tool.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  data-ocid={`travel-tools.link.${i + 1}`}
+                  className="btn-gold inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold tracking-wide w-full"
+                >
+                  <ExternalLink className="w-4 h-4" />
+                  Visit Tool
                 </a>
               </motion.div>
             ))}
