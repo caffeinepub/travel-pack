@@ -24,12 +24,20 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { AirportSelector } from "./AirportSelector";
 import { DateRangePicker } from "./DateRangePicker";
+import { HotelLocationSelector } from "./HotelLocationSelector";
 import { PassengerSelector, type Passengers } from "./PassengerSelector";
 
 const AFFILIATE_BASE = "https://www.expedia.com";
 const MARKER = "708777";
 
 type Tab = "flights" | "hotels" | "cruises";
+type CabinClass = "economy" | "business" | "first";
+
+const CABIN_OPTIONS: { value: CabinClass; label: string }[] = [
+  { value: "economy", label: "Economy" },
+  { value: "business", label: "Business" },
+  { value: "first", label: "First Class" },
+];
 
 interface SimResult {
   id: string;
@@ -39,6 +47,7 @@ interface SimResult {
   rating: number;
   logo: string;
   type: Tab;
+  availableCabins: CabinClass[];
 }
 
 const FLIGHT_PROVIDERS = [
@@ -48,6 +57,7 @@ const FLIGHT_PROVIDERS = [
     price: "$1,240",
     priceNum: 1240,
     rating: 4.5,
+    availableCabins: ["economy", "business", "first"] as CabinClass[],
   },
   {
     name: "British Airways",
@@ -55,14 +65,23 @@ const FLIGHT_PROVIDERS = [
     price: "$1,090",
     priceNum: 1090,
     rating: 4.3,
+    availableCabins: ["economy", "business"] as CabinClass[],
   },
-  { name: "Emirates", logo: "✈", price: "$1,580", priceNum: 1580, rating: 4.8 },
+  {
+    name: "Emirates",
+    logo: "✈",
+    price: "$1,580",
+    priceNum: 1580,
+    rating: 4.8,
+    availableCabins: ["economy", "business", "first"] as CabinClass[],
+  },
   {
     name: "Lufthansa",
     logo: "✈",
     price: "$1,320",
     priceNum: 1320,
     rating: 4.4,
+    availableCabins: ["economy"] as CabinClass[],
   },
 ];
 
@@ -97,6 +116,18 @@ const HOTEL_PROVIDERS = [
   },
 ];
 
+const CABIN_LABEL: Record<CabinClass, string> = {
+  economy: "Economy",
+  business: "Business",
+  first: "First Class",
+};
+
+const CABIN_COLOR: Record<CabinClass, string> = {
+  economy: "bg-slate-100 text-slate-600",
+  business: "bg-blue-50 text-blue-700",
+  first: "bg-amber-50 text-amber-700 font-semibold",
+};
+
 function buildExpediaUrl(
   tab: Tab,
   origin: Airport | null,
@@ -105,12 +136,16 @@ function buildExpediaUrl(
   toDate: Date | undefined,
   passengers: Passengers,
   cabin: string,
+  hotelCountry: string,
+  hotelRegion: string,
+  hotelCity: string,
 ) {
   const totalPax = passengers.adults + passengers.seniors + passengers.kids;
   const dep = fromDate ? fromDate.toISOString().split("T")[0] : "";
   const ret = toDate ? toDate.toISOString().split("T")[0] : "";
   if (tab === "hotels") {
-    return `${AFFILIATE_BASE}/Hotel-Search?destination=${encodeURIComponent(destination?.city || "")}&startDate=${dep}&endDate=${ret}&adults=${totalPax}&marker=${MARKER}`;
+    const dest = hotelCity || hotelRegion || hotelCountry;
+    return `${AFFILIATE_BASE}/Hotel-Search?destination=${encodeURIComponent(dest)}&startDate=${dep}&endDate=${ret}&adults=${totalPax}&marker=${MARKER}`;
   }
   if (tab === "cruises") {
     return `${AFFILIATE_BASE}/?marker=${MARKER}`;
@@ -148,10 +183,16 @@ export function SearchCard() {
     kids: 0,
     seniors: 0,
   });
+  const [cabin, setCabin] = useState<CabinClass>("economy");
   const [results, setResults] = useState<SimResult[] | null>(null);
   const [searching, setSearching] = useState(false);
   const [savingId, setSavingId] = useState<string | null>(null);
   const [savedIds, setSavedIds] = useState<Set<string>>(new Set());
+
+  // Hotel location state
+  const [hotelCountry, setHotelCountry] = useState("");
+  const [hotelRegion, setHotelRegion] = useState("");
+  const [hotelCity, setHotelCity] = useState("");
 
   const { actor } = useActor();
   const { identity } = useInternetIdentity();
@@ -160,8 +201,21 @@ export function SearchCard() {
   const isLoggedIn = !!identity && !identity.getPrincipal().isAnonymous();
 
   function generateResults(): SimResult[] {
-    const providers = tab === "hotels" ? HOTEL_PROVIDERS : FLIGHT_PROVIDERS;
-    return providers.map((p, i) => ({
+    if (tab === "hotels") {
+      return HOTEL_PROVIDERS.map((p, i) => ({
+        id: `${tab}-${i}-${Date.now()}`,
+        name: p.name,
+        price: p.price,
+        priceNum: p.priceNum,
+        rating: p.rating,
+        logo: p.logo,
+        type: tab,
+        availableCabins: [],
+      }));
+    }
+    return FLIGHT_PROVIDERS.filter((p) =>
+      p.availableCabins.includes(cabin),
+    ).map((p, i) => ({
       id: `${tab}-${i}-${Date.now()}`,
       name: p.name,
       price: p.price,
@@ -169,6 +223,7 @@ export function SearchCard() {
       rating: p.rating,
       logo: p.logo,
       type: tab,
+      availableCabins: p.availableCabins,
     }));
   }
 
@@ -193,13 +248,17 @@ export function SearchCard() {
     const totalPax = passengers.adults + passengers.seniors + passengers.kids;
     const dep = fromDate ? fromDate.toISOString().split("T")[0] : "";
     const ret = toDate ? toDate.toISOString().split("T")[0] : "";
+    const destLabel =
+      tab === "hotels"
+        ? hotelCity || hotelRegion || hotelCountry || "Unknown"
+        : destination?.city || destination?.iata || "Unknown";
     setSavingId(result.id);
     try {
       await actor.saveTrip({
         id: result.id,
-        destination: destination?.city || destination?.iata || "Unknown",
+        destination: destLabel,
         origin: departure?.city || departure?.iata || "Unknown",
-        cabinClass: "economy",
+        cabinClass: cabin,
         tripType: result.type === "hotels" ? "hotel" : "flight",
         departureDate: dep,
         returnDate: ret,
@@ -283,8 +342,8 @@ export function SearchCard() {
           </button>
         </div>
 
-        {/* Location */}
-        {tab !== "cruises" && (
+        {/* Flights: Departure + Destination airport selectors */}
+        {tab === "flights" && (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
             <AirportSelector
               label="Departure"
@@ -303,6 +362,49 @@ export function SearchCard() {
           </div>
         )}
 
+        {/* Cabin Class selector (flights only) */}
+        {tab === "flights" && (
+          <div className="mb-4">
+            <p className="text-xs font-semibold text-midnight/50 uppercase tracking-wider mb-2">
+              Cabin Class
+            </p>
+            <div className="flex gap-2">
+              {CABIN_OPTIONS.map((opt) => (
+                <button
+                  key={opt.value}
+                  type="button"
+                  data-ocid={`search.cabin_${opt.value}`}
+                  onClick={() => {
+                    setCabin(opt.value);
+                    setResults(null);
+                  }}
+                  className={cn(
+                    "flex-1 py-2 rounded-lg text-sm font-semibold border transition-all",
+                    cabin === opt.value
+                      ? "bg-midnight text-white border-midnight shadow-sm"
+                      : "bg-white text-midnight/60 border-slate-200 hover:border-midnight/30 hover:text-midnight",
+                  )}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Hotels: cascading country > region > city selector */}
+        {tab === "hotels" && (
+          <HotelLocationSelector
+            country={hotelCountry}
+            region={hotelRegion}
+            city={hotelCity}
+            onCountryChange={setHotelCountry}
+            onRegionChange={setHotelRegion}
+            onCityChange={setHotelCity}
+          />
+        )}
+
+        {/* Cruises info panel */}
         {tab === "cruises" && (
           <div className="mb-4 rounded-xl bg-slate-50 border border-slate-100 p-4 text-sm text-midnight/60">
             <p className="font-semibold text-midnight mb-1">
@@ -387,11 +489,35 @@ export function SearchCard() {
               <div className="flex items-center justify-between mb-3">
                 <p className="text-sm font-semibold text-midnight">
                   {results.length} results found
+                  {tab === "flights" && (
+                    <span className="ml-2 text-xs font-normal text-midnight/40">
+                      — {CABIN_LABEL[cabin]} class
+                    </span>
+                  )}
                 </p>
                 <span className="text-xs text-midnight/40">
                   Powered by Expedia
                 </span>
               </div>
+
+              {results.length === 0 && tab === "flights" && (
+                <div className="text-center py-8 text-midnight/50 text-sm">
+                  No flights available in {CABIN_LABEL[cabin]} class for this
+                  route.
+                  <br />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setCabin("economy");
+                      setResults(null);
+                    }}
+                    className="mt-2 text-gold underline hover:no-underline"
+                  >
+                    Try Economy class
+                  </button>
+                </div>
+              )}
+
               <div className="space-y-3">
                 {results.map((result, idx) => {
                   const isSaved = savedIds.has(result.id);
@@ -403,7 +529,10 @@ export function SearchCard() {
                     fromDate,
                     toDate,
                     passengers,
-                    "economy",
+                    cabin,
+                    hotelCountry,
+                    hotelRegion,
+                    hotelCity,
                   );
                   return (
                     <motion.div
@@ -425,6 +554,25 @@ export function SearchCard() {
                           {result.price}
                         </span>
                       </div>
+
+                      {/* Available cabin class badges (flights only) */}
+                      {result.availableCabins.length > 0 && (
+                        <div className="flex flex-wrap gap-1.5 mb-3">
+                          {result.availableCabins.map((c) => (
+                            <span
+                              key={c}
+                              className={cn(
+                                "px-2 py-0.5 rounded-full text-xs",
+                                CABIN_COLOR[c],
+                                c === cabin &&
+                                  "ring-1 ring-offset-1 ring-gold/60",
+                              )}
+                            >
+                              {CABIN_LABEL[c]}
+                            </span>
+                          ))}
+                        </div>
+                      )}
 
                       <div className="flex gap-2 mt-3">
                         <a
